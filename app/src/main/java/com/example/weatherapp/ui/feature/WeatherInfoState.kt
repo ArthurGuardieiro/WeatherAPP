@@ -3,5 +3,6 @@ package com.example.weatherapp.ui.feature
 import com.example.weatherapp.data.model.WeatherInfo
 
 data class WeatherInfoState(
-    val weatherInfo: WeatherInfo? = null
+    val weatherInfo: WeatherInfo? = null,
+    val errorMessage: String? = null
 )
