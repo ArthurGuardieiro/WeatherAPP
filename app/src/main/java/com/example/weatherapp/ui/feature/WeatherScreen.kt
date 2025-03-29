@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.R
+import com.example.weatherapp.data.model.FutureModel
 import com.example.weatherapp.data.model.WeatherInfo
 import com.example.weatherapp.ui.theme.BlueSky
 import com.example.weatherapp.ui.theme.WeatherAPPTheme
@@ -118,6 +120,57 @@ fun FutureModelViewHolder(hour:String,temp:Int, iconDrawableResId:Int){
     }
 }
 
+@Composable
+fun FutureItem(item:FutureModel){
+    Row (modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 24.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Text(text = item.day,
+            color=Color.White,
+            fontSize = 14.sp
+        )
+
+        Image(painter = painterResource(id = item.idPic),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(start = 32.dp)
+                .size(45.dp)
+        )
+
+        Text(text = item.status,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp),
+            color = Color.White,
+            fontSize = 14.sp
+        )
+
+        Text(text = "${item.highTemp}º",
+            modifier = Modifier.padding(end = 16.dp),
+            color = Color.White,
+            fontSize = 14.sp
+        )
+
+        Text(text = "${item.lowTemp}º",
+            modifier = Modifier.padding(end = 16.dp),
+            color = Color.White,
+            fontSize = 14.sp
+        )
+
+    }
+}
+
+@SuppressLint("DiscouragedApi")
+fun getWeatherIconResourceId(context: Context, conditionIcon: String): Int {
+    return context.resources.getIdentifier(
+        "weather_$conditionIcon",
+        "drawable",
+        context.packageName
+    )
+}
+
 @SuppressLint("DiscouragedApi")
 @Composable
 fun WeatherScreen(
@@ -133,14 +186,16 @@ fun WeatherScreen(
         ) {
             Column (
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ){
                 Text(
                     text = weatherInfo.locationName,
                     color = Color.White,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = 20.dp)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -220,10 +275,44 @@ fun WeatherScreen(
                     FutureModelViewHolder("12:00", 27, iconDrawableResId)
                 }
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Futuro",
+                        fontSize = 20.sp,
+                        color = Color.White,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(text = "Próximos 7 dias",
+                        fontSize = 14.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                }
+
+                Column(
+                    modifier = Modifier.padding(bottom = 20.dp)
+                ) {
+                    FutureItem(FutureModel("Sab", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
+                    FutureItem(FutureModel("Dom", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
+                    FutureItem(FutureModel("Seg", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
+                    FutureItem(FutureModel("Ter", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
+                    FutureItem(FutureModel("Qua", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
+                    FutureItem(FutureModel("Qui", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
+                    FutureItem(FutureModel("Sex", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
+                }
+
             }
         }
     }
 }
+
+
+
 
 @Preview
 @Composable
@@ -241,3 +330,4 @@ private fun WeatherScreenPreview() {
         )
     }
 }
+
