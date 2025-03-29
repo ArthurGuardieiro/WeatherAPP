@@ -3,11 +3,23 @@ package com.example.weatherapp.ui.feature
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,12 +28,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.R
 import com.example.weatherapp.data.model.WeatherInfo
 import com.example.weatherapp.ui.theme.BlueSky
 import com.example.weatherapp.ui.theme.WeatherAPPTheme
@@ -32,6 +49,73 @@ fun WeatherRoute(
 ) {
     val weatherInfoState by viewModel.weatherInfoState.collectAsStateWithLifecycle()
     WeatherScreen(weatherInfo = weatherInfoState.weatherInfo)
+}
+
+@Composable
+fun WeatherDetailItem(icon:Int,value:String,label:String){
+    Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = icon), contentDescription = null
+            ,modifier = Modifier.size(34.dp)
+        )
+        Text(text =value,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            textAlign = TextAlign.Center
+        )
+        Text(text = label,
+            color = Color.White,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun FutureModelViewHolder(hour:String,temp:Int, iconDrawableResId:Int){
+    Column(
+        modifier = Modifier
+            .width(90.dp)
+            .wrapContentHeight()
+            .padding(4.dp)
+            .background(
+                color = Color.Gray,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = hour,
+            color = Color.White,
+            fontSize = 16.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            textAlign = TextAlign.Center
+        )
+
+        Image(
+            painter = painterResource(
+                id = iconDrawableResId,
+            ),
+            contentDescription = null,
+            modifier = Modifier
+                .size(45.dp)
+                .padding(8.dp),
+            contentScale = ContentScale.Crop
+        )
+
+        Text(
+            text = "${temp}º",
+            color = Color.White,
+            fontSize = 16.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @SuppressLint("DiscouragedApi")
@@ -95,6 +179,46 @@ fun WeatherScreen(
                     color = Color.White,
                     style = MaterialTheme.typography.displayLarge
                 )
+
+                // Essa Box contem as informações do quadrado cinza
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                        .background(
+                            color = Color.LightGray, // Escolha a cor desejada
+                            shape = RoundedCornerShape(25.dp)
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement =  Arrangement.SpaceBetween
+
+                    ) {
+                        WeatherDetailItem(icon = iconDrawableResId,value = "02%", label = "Rain")
+                        WeatherDetailItem(icon = iconDrawableResId,value = "12%", label = "Wind")
+                        WeatherDetailItem(icon = iconDrawableResId,value = "25%", label = "Rain")
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.Center
+
+                ) {
+                    FutureModelViewHolder("07:00", 31, iconDrawableResId)
+                    FutureModelViewHolder("08:00", 30, iconDrawableResId)
+                    FutureModelViewHolder("09:00", 30, iconDrawableResId)
+                    FutureModelViewHolder("10:00", 29, iconDrawableResId)
+                    FutureModelViewHolder("11:00", 28, iconDrawableResId)
+                    FutureModelViewHolder("12:00", 27, iconDrawableResId)
+                }
 
             }
         }
