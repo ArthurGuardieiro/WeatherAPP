@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.weatherapp.data.remote.di.LocationHelper
+import com.example.weatherapp.navigation.TodoNavHost
 import com.example.weatherapp.ui.feature.WeatherRoute
 import com.example.weatherapp.ui.theme.WeatherAPPTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,7 +25,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             WeatherAPPTheme {
-                WeatherRoute()
+                TodoNavHost()
+                //WeatherRoute()
             }
         }
     }

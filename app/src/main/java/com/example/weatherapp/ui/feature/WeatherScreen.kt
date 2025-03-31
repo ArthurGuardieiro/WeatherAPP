@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,7 +60,8 @@ fun WeatherRoute(
     val weatherInfoSixHoursState by viewModel.weatherInfoSixHoursState.collectAsStateWithLifecycle()
     WeatherScreen(weatherInfo = weatherInfoState.weatherInfo,
         weatherInfoSevenDays = weatherInfoSevenDaysState.weatherInfoSevenDays,
-        weatherInfoSixHours = weatherInfoSixHoursState.weatherInfoSixHours
+        weatherInfoSixHours = weatherInfoSixHoursState.weatherInfoSixHours,
+        onAddItemClick = { }
         )
 
 }
@@ -188,7 +190,8 @@ fun WeatherScreen(
     context: Context = LocalContext.current,
     weatherInfo: WeatherInfo?,
     weatherInfoSevenDays: WeatherInfoSevenDays?,
-    weatherInfoSixHours: WeatherInfoSixHours?
+    weatherInfoSixHours: WeatherInfoSixHours?,
+    onAddItemClick: (id: Long?) -> Unit
     ) {
     weatherInfo?.let {
         Surface(
@@ -200,7 +203,8 @@ fun WeatherScreen(
             Column (
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .clickable { onAddItemClick(null) },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ){
@@ -208,7 +212,7 @@ fun WeatherScreen(
                     text = weatherInfo.locationName,
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top = 20.dp)
+                    modifier = Modifier.padding(top = 20.dp),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -437,8 +441,9 @@ private fun WeatherScreenPreview() {
                                 maxTemp = 22f
                             ),
                         )
-                    )
+                    ),
 
+            onAddItemClick = {  },
 
         )
     }

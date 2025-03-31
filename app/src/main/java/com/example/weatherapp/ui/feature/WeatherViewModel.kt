@@ -48,15 +48,8 @@ class WeatherViewModel @Inject constructor(
                 val lat = details["latitude"] as? Double ?: return@getCurrentLocation
                 val lng = details["longitude"] as? Double ?: return@getCurrentLocation
 
-                Log.d("test","Latitude: $lat")
-                Log.d("test","Longitude: $lng")
-
-
                 viewModelScope.launch(Dispatchers.IO) {
-                    latLngRepository.insertUser(
-                        LatLngEntity(1, 37.421998333333335f, -122.084f)
-                    )
-                    val result = latLngRepository.getAllUsers()
+
                     try {
                         val weatherInfo = weatherRepository.getWeatherData(lat.toFloat(), lng.toFloat())
                         _weatherInfoState.update {
@@ -102,5 +95,35 @@ class WeatherViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateLocation(lat: Float, lng: Float) {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d("entrou", "$lat $lng")
+            try {
+                val weatherInfo = weatherRepository.getWeatherData(lat, lng)
+                _weatherInfoState.update {
+                    it.copy(weatherInfo = weatherInfo)
+                }
+
+                val weatherInfoSevenDays = weatherRepository.getWeatherDataSevenDays(lat, lng)
+                _weatherInfoSevenDays.update {
+                    it.copy(weatherInfoSevenDays = weatherInfoSevenDays)
+                }
+
+                val weatherInfoSixHours = weatherRepository.getWeatherDataSixHours(lat, lng)
+                _weatherInfoSixHours.update {
+                    it.copy(weatherInfoSixHours = weatherInfoSixHours)
+                }
+
+                Log.d("WeatherUpdate", "Localização atualizada: Lat: $lat, Lng: $lng")
+            } catch (e: Exception) {
+                _weatherInfoState.update {
+                    it.copy(errorMessage = "Erro ao atualizar dados meteorológicos.")
+                }
+                Log.e("WeatherUpdateError", "Erro: ${e.message}")
+            }
+        }
+    }
+
 
 }
