@@ -80,6 +80,16 @@ dependencies {
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
+    // See Add the KSP plugin to your project
+    kapt("androidx.room:room-compiler:$room_version")
+
+    implementation ("androidx.room:room-ktx:$room_version")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2") // Add Coroutine dependency
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

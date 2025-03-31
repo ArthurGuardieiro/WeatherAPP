@@ -40,17 +40,28 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.R
+import com.example.weatherapp.data.model.DayWeatherInfo
+import com.example.weatherapp.data.model.DayWeatherInfoMin
 import com.example.weatherapp.data.model.FutureModel
 import com.example.weatherapp.data.model.WeatherInfo
+import com.example.weatherapp.data.model.WeatherInfoSevenDays
+import com.example.weatherapp.data.model.WeatherInfoSixHours
 import com.example.weatherapp.ui.theme.BlueSky
 import com.example.weatherapp.ui.theme.WeatherAPPTheme
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun WeatherRoute(
     viewModel: WeatherViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val weatherInfoState by viewModel.weatherInfoState.collectAsStateWithLifecycle()
-    WeatherScreen(weatherInfo = weatherInfoState.weatherInfo)
+    val weatherInfoSevenDaysState by viewModel.weatherInfoSevenDaysState.collectAsStateWithLifecycle()
+    val weatherInfoSixHoursState by viewModel.weatherInfoSixHoursState.collectAsStateWithLifecycle()
+    WeatherScreen(weatherInfo = weatherInfoState.weatherInfo,
+        weatherInfoSevenDays = weatherInfoSevenDaysState.weatherInfoSevenDays,
+        weatherInfoSixHours = weatherInfoSixHoursState.weatherInfoSixHours
+        )
+
 }
 
 @Composable
@@ -74,14 +85,14 @@ fun WeatherDetailItem(icon:Int,value:String,label:String){
 }
 
 @Composable
-fun FutureModelViewHolder(hour:String,temp:Int, iconDrawableResId:Int){
+fun FutureModelViewHolder(hour:String,temp:Float, iconDrawableResId:Int){
     Column(
         modifier = Modifier
             .width(90.dp)
             .wrapContentHeight()
             .padding(4.dp)
             .background(
-                color = Color.Gray,
+                color = Color.LightGray,
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(8.dp),
@@ -176,6 +187,8 @@ fun getWeatherIconResourceId(context: Context, conditionIcon: String): Int {
 fun WeatherScreen(
     context: Context = LocalContext.current,
     weatherInfo: WeatherInfo?,
+    weatherInfoSevenDays: WeatherInfoSevenDays?,
+    weatherInfoSixHours: WeatherInfoSixHours?
     ) {
     weatherInfo?.let {
         Surface(
@@ -254,9 +267,9 @@ fun WeatherScreen(
                         horizontalArrangement =  Arrangement.SpaceBetween
 
                     ) {
-                        WeatherDetailItem(icon = iconDrawableResId,value = "02%", label = "Rain")
-                        WeatherDetailItem(icon = iconDrawableResId,value = "12%", label = "Wind")
-                        WeatherDetailItem(icon = iconDrawableResId,value = "25%", label = "Rain")
+                        WeatherDetailItem(icon = getWeatherIconResourceId(context, "09n"),value = "${weatherInfo.rain}", label = "Rain")
+                        WeatherDetailItem(icon = iconDrawableResId,value = "${weatherInfo.windSpeed} m/s", label = "Vento")
+                        WeatherDetailItem(icon = iconDrawableResId,value = "${weatherInfo.humidity}%", label = "Hum.")
                     }
                 }
 
@@ -267,12 +280,15 @@ fun WeatherScreen(
                     horizontalArrangement = Arrangement.Center
 
                 ) {
-                    FutureModelViewHolder("07:00", 31, iconDrawableResId)
-                    FutureModelViewHolder("08:00", 30, iconDrawableResId)
-                    FutureModelViewHolder("09:00", 30, iconDrawableResId)
-                    FutureModelViewHolder("10:00", 29, iconDrawableResId)
-                    FutureModelViewHolder("11:00", 28, iconDrawableResId)
-                    FutureModelViewHolder("12:00", 27, iconDrawableResId)
+                    weatherInfoSixHours?.hours?.forEachIndexed{ _, dayWeatherInfoMin ->
+                        FutureModelViewHolder(hour = dayWeatherInfoMin.hour, temp = dayWeatherInfoMin.maxTemp, iconDrawableResId = getWeatherIconResourceId(context, dayWeatherInfoMin.icon))
+                    }
+//                    FutureModelViewHolder("07:00", 31, iconDrawableResId)
+//                    FutureModelViewHolder("08:00", 30, iconDrawableResId)
+//                    FutureModelViewHolder("09:00", 30, iconDrawableResId)
+//                    FutureModelViewHolder("10:00", 29, iconDrawableResId)
+//                    FutureModelViewHolder("11:00", 28, iconDrawableResId)
+//                    FutureModelViewHolder("12:00", 27, iconDrawableResId)
                 }
 
                 Row(
@@ -297,13 +313,17 @@ fun WeatherScreen(
                 Column(
                     modifier = Modifier.padding(bottom = 20.dp)
                 ) {
-                    FutureItem(FutureModel("Sab", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
-                    FutureItem(FutureModel("Dom", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
-                    FutureItem(FutureModel("Seg", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
-                    FutureItem(FutureModel("Ter", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
-                    FutureItem(FutureModel("Qua", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
-                    FutureItem(FutureModel("Qui", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
-                    FutureItem(FutureModel("Sex", getWeatherIconResourceId(context, "02d"), "Sol", 30, 22))
+                    weatherInfoSevenDays?.days?.forEachIndexed { _, dayWeather ->
+                        FutureItem(
+                            FutureModel(
+                                dayWeather.day,  // Dia da semana (sab, dom, seg, ...)
+                                getWeatherIconResourceId(context, dayWeather.icon),  // Ícone correspondente
+                                dayWeather.description,  // Descrição do tempo (ex: "Céu claro", "Nuvens dispersas", etc.)
+                                dayWeather.maxTemp,  // Temperatura máxima
+                                dayWeather.minTemp   // Temperatura mínima
+                            )
+                        )
+                    }
                 }
 
             }
@@ -312,7 +332,7 @@ fun WeatherScreen(
 }
 
 
-
+val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
 @Preview
 @Composable
@@ -326,7 +346,100 @@ private fun WeatherScreenPreview() {
                 temperature = 32,
                 dayOfWeek = "Saturday",
                 isDay = true,
-            )
+                humidity = 5,
+                windSpeed = 30.2,
+                rain = 0.0
+            ),
+            weatherInfoSevenDays = WeatherInfoSevenDays(
+                days = listOf(
+                    DayWeatherInfo(
+                        day = "Sab",
+                        maxTemp = 27.0f,
+                        minTemp = 21.0f,
+                        icon = "02d",
+                        description = "Sol",
+                    ),
+                    DayWeatherInfo(
+                        day = "Dom",
+                        maxTemp = 28.0f,
+                        minTemp = 22.0f,
+                        icon = "02d",
+                        description = "Sol",
+                    ),
+                    DayWeatherInfo(
+                        day = "Seg",
+                        maxTemp = 29.0f,
+                        minTemp = 23.0f,
+                        icon = "01d",
+                        description = "Sol",
+                    ),
+                    DayWeatherInfo(
+                        day = "Ter",
+                        maxTemp = 30.0f,
+                        minTemp = 24.0f,
+                        icon = "01d",
+                        description = "Sol",
+                    ),
+                    DayWeatherInfo(
+                        day = "Qua",
+                        maxTemp = 31.0f,
+                        minTemp = 25.0f,
+                        icon = "01d",
+                        description = "Sol",
+                    ),
+                    DayWeatherInfo(
+                        day = "Qui",
+                        maxTemp = 32.0f,
+                        minTemp = 26.0f,
+                        icon = "02d",
+                        description = "Parcialmente Nublado",
+                    ),
+                    DayWeatherInfo(
+                        day = "Sex",
+                        maxTemp = 33.0f,
+                        minTemp = 27.0f,
+                        icon = "03d",
+                        description = "Nuvens",
+                    )
+                )
+
+            ),
+            weatherInfoSixHours = WeatherInfoSixHours(
+                        hours = listOf(
+                            DayWeatherInfoMin(
+                                hour = "12:00",
+                                icon = "02d",
+                                maxTemp = 22f
+                            ),
+                            DayWeatherInfoMin(
+                                hour = "12:00",
+                                icon = "02d",
+                                maxTemp = 22f
+                            ),
+                            DayWeatherInfoMin(
+                                hour = "12:00",
+                                icon = "02d",
+                                maxTemp = 22f
+                            ),
+                            DayWeatherInfoMin(
+                                hour = "12:00",
+                                icon = "02d",
+                                maxTemp = 22f
+                            ),
+                            DayWeatherInfoMin(
+                                hour = "12:00",
+                                icon = "02d",
+                                maxTemp = 22f
+                            ),
+                            DayWeatherInfoMin(
+                                hour = "12:00",
+                                icon = "02d",
+                                maxTemp = 22f
+                            ),
+                        )
+                    )
+
+
         )
     }
 }

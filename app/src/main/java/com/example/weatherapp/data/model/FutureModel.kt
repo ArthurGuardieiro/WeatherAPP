@@ -4,6 +4,6 @@ data class FutureModel(
     val day:String,
     val idPic:Int,
     val status:String,
-    val highTemp:Int,
-    val lowTemp: Int
+    val highTemp:Float,
+    val lowTemp: Float
 )

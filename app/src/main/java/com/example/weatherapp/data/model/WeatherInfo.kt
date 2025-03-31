@@ -6,5 +6,8 @@ data class WeatherInfo(
     val condition: String,
     val temperature: Int,
     val dayOfWeek: String,
-    val isDay: Boolean
+    val isDay: Boolean,
+    val humidity: Int,
+    val windSpeed: Double,
+    val rain: Double
 )
