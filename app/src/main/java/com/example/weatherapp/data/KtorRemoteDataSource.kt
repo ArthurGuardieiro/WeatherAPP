@@ -30,7 +30,7 @@ class KtorRemoteDataSource @Inject constructor(
 
     override suspend fun getWeatherDataResponseSixHours(lat: Float, lng: Float): WeatherDataResponseHourly{
         return httpClient
-            .get("https://api.weatherbit.io/v2.0/forecast/hourly?lat=-18.9194&lon=-48.2781&hours=7&key=876339f534b247be81f921602a24008c&days=8&lang=pt")
+            .get("https://api.weatherbit.io/v2.0/forecast/hourly?lat=${lat}&lon=${lng}&hours=7&key=876339f534b247be81f921602a24008c&days=8&lang=pt")
             .body()
     }
 }
